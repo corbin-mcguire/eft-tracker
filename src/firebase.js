@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getDatabase } from "firebase/database";
+import { getDatabase, update, ref } from "firebase/database";
 
 let firebaseApp = null;
 
@@ -22,3 +22,33 @@ export const getFirebaseApp = () => {
 };
 
 // Your Firebase functions here
+export const logKill = async (playerId, playerName, killName) => {
+  const db = getFirebaseApp();
+
+  killName = killName.toLowerCase();
+
+  const entry = { killedBy: playerName };
+
+  return update(ref(db, `kills/${killName}`), entry);
+};
+
+export const getAllPlayers = async () => {
+  const database = getFirebaseApp();
+  const allPlayersRef = ref(database);
+
+  try {
+    const player = await get(child(allPlayersRef, "players/"));
+    return player.exists() ? player.val() : null;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+export const updatePlayerTokens = async (playerId, tokens, lastDailyCommand = null) => {
+  const database = getFirebaseApp();
+
+  const playerUpdate = { tokens };
+
+  return update(ref(database, `players/${playerId}`), playerUpdate);
+};
